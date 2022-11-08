@@ -1,4 +1,4 @@
-### Author: Emily Beckman  ###  Date: 01/27/2021
+### Author: Emily Beckman Bruns  ###  Date: 01/27/2021
 ### Funding:
 	# The Morton Arboretum,
 	#		Institute of Museum and Library Services (award #MA-30-18-0273-18), and
@@ -9,8 +9,10 @@
 	#			Conservation Gap Analysis of Native U.S. Pines. Lisle, IL:
 	#			The Morton Arboretum.
 
-### DESCRIPTION: Calculate geographic and ecological coverage of ex situ
-	# collections, and create a map of coverage
+### DESCRIPTION: This script creates circular buffers around in situ points (wild occurrence records) 
+#   and ex situ points (wild locations where seeds were collected forcultivation in botanic gardens or genebanks) 
+#   to calculate the geographic (area within buffers) and ecological (number of ecoregions within buffers) diversity 
+#   conserved in ex situ living collections. An interactive map is also created to view buffers and ecoregions.
 
 ### INPUTS:
 	## Ecoregions

@@ -1,13 +1,16 @@
-### Author: Emily Beckman Bruns  ###  Date: 01/27/2021
+### Author: Emily Beckman Bruns (eb-bruns) ### Date: 01/27/2021
 ### Funding:
 	# The Morton Arboretum,
-	#		Institute of Museum and Library Services (award #MA-30-18-0273-18), and
-	# 	Botanic Gardens Conservation International
+	# Institute of Museum and Library Services (award #MA-30-18-0273-18), and
+	# Botanic Gardens Conservation International-US
+	#
 	# Buffer methodology based on work funded by the
-	#		USDA Forest Service (Cooperative Agreement 16-CA-11132546-045); see
-	# 	Beckman, E., Meyer, A., Pivorunas, D., & Westwood, M. (2021).
-	#			Conservation Gap Analysis of Native U.S. Pines. Lisle, IL:
-	#			The Morton Arboretum.
+	# USDA Forest Service (Cooperative Agreement 16-CA-11132546-045); see
+	# Beckman, E., Meyer, A., Pivorunas, D., & Westwood, M. (2021).
+	#	Conservation Gap Analysis of Native U.S. Pines. Lisle, IL:
+	#	The Morton Arboretum.
+
+### Script adapted for US Magnolia species by Jean Linsky 
 
 ### DESCRIPTION: This script creates circular buffers around in situ points (wild occurrence records) 
 #   and ex situ points (wild locations where seeds were collected forcultivation in botanic gardens or genebanks) 
@@ -17,28 +20,27 @@
 ### INPUTS:
 	## Ecoregions
 	# 	Terrestrial Ecoregions of the World, via WWF (Olson et al., 2001)
-	#			https://www.worldwildlife.org/publications/terrestrial-ecoregions-of-the-world
+	#	https://www.worldwildlife.org/publications/terrestrial-ecoregions-of-the-world
 	## Global country boundaries
-	#		UIA World Countries Boundaries, UNIGIS Geospatial Education Resources, via ArcGIS Hub
-	# 		Shapefile
-	#			https://hub.arcgis.com/datasets/252471276c9941729543be8789e06e12_0
+	#	UIA World Countries Boundaries, UNIGIS Geospatial Education Resources, via ArcGIS Hub Shapefile
+	#	https://hub.arcgis.com/datasets/252471276c9941729543be8789e06e12_0
 	## In situ occurrence points (latitude and longitude in decimal degrees)
 	# 	Can use the output from 3-1_refine_occurrence_points.R
 	# 		https://github.com/MortonArb-CollectionsValue/OccurrencePoints/tree/master/scripts
-	# 		Each file has data for only one species and is named "Genus_species.csv"
-	# 		You can read in data for mult. species in one file but need to edit the
-	#			code to split after reading in
+	# 	Each file has data for only one species and is named "Genus_species.csv"
+	# 	You can read in data for mult. species in one file but need to edit the
+	#		code to split after reading in
 	## Ex situ wild localities (latitude and longitude in decimal degrees)
 	# 	Can use the output from 3-1_refine_occurrence_points.R, which has a
-	#			"database" column that has "Ex_situ" to distinguish the ex situ records
-	#			from the rest of the in situ records
+	#		"database" column that has "Ex_situ" to distinguish the ex situ records
+	#		from the rest of the in situ records
 
 ### OUTPUTS:
   ## Table with geographic and ecological coverage for each species; example:
-	# | species						|	geo_20								|	eco_20					|	geo_50	|	eco_50	|	geo_100	|	eco_100	|	geo_avg	| eco_avg	|
+	# | species	      |	geo_20		      |	eco_20		| geo_50  | eco_50  | geo_100 |	eco_100	| geo_avg | eco_avg |
 	# |-------------------|-----------------------|-----------------|---------|---------|---------|---------|---------|---------|
-	# | Taxus brevifolia	|	19,793 / 304,644 (6%)	|	53 / 161 (33%)	| ...			|					|					|					|	23%			|	47%			|
-	# | Taxus canadensis	|	14,494 / 368,449 (4%)	|	...           	|     		|					|					|					|					|					|
+	# | Taxus brevifolia  |	19,793 / 304,644 (6%) |	53 / 161 (33%)	| ...	  |	    |	      |		| 23%	  | 47%	    |
+	# | Taxus canadensis  |	14,494 / 368,449 (4%) |	...           	|     	  |	    |	      |		|         |	    |
 	# ...
 	## Interactive map with 50 km buffers (can change buffer size as desired)
 
@@ -49,10 +51,9 @@
 #################
 
 rm(list=ls())
-my.packages <- c("leaflet","raster","sp","rgeos","plyr","dplyr","rgdal",
-	"Polychrome","cleangeo","RColorBrewer","smoothr","rnaturalearth","polylabelr",
-	"sf")
-install.packages(my.packages) # turn on to install current versions
+my.packages <- c("leaflet","raster","plyr","dplyr","rgdal",
+	"Polychrome","rnaturalearth","polylabelr","sf")
+#install.packages(my.packages) # turn on to install current versions
 lapply(my.packages, require, character.only=TRUE)
 
 select <- dplyr::select
@@ -101,7 +102,7 @@ calc.buff.area <- function(pts,radius,pt_proj,buff_proj,boundary){
 }
 
 # create data frame with ecoregion data extracted for area covered by buffers,
-#		for both in situ and ex situ points, then compare count of ecoregions
+# for both in situ and ex situ points, then compare count of ecoregions
 count.eco <- function(pts,radius,pt_proj,buff_proj,ecoregions,boundary){
 	# create buffers
 	buffers <- create.buffers(pts,radius,pt_proj,buff_proj,boundary)
@@ -118,8 +119,8 @@ count.eco <- function(pts,radius,pt_proj,buff_proj,ecoregions,boundary){
 # format text in cell for output table
 format.cell <- function(ex_result,in_result,final_result){
 	cell <- paste0(format(round(ex_result,0),format="d",big.mark=",")," / ",
-								 format(round(in_result,0),format="d",big.mark=","),"\n",
-								 "(",round(final_result,0),"%)")
+		format(round(in_result,0),format="d",big.mark=","),"\n",
+		"(",round(final_result,0),"%)")
 	return(cell)
 }
 
@@ -177,7 +178,7 @@ target_countries.aea <- spTransform(target_countries,aea.proj)
 boundary.aea <- aggregate(target_countries.aea,dissolve = TRUE)
 
 ## find the visual center point of each country (still not perfect), for
-##		labeling purposes
+##	labeling purposes
 simple_countries <- st_as_sf(target_countries.wgs)
 country_centers <- as.data.frame(do.call(rbind, poi(simple_countries, precision=0.01)))
 country_centers$label <- target_countries.wgs@data$COUNTRY
@@ -254,9 +255,13 @@ triangle_lg <- makeIcon(iconUrl = "https://www.freeiconspng.com/uploads/triangle
 
 ### CREATE LIST OF TARGET SPECIES
 
-#target_sp <- c("Magnolia_lacei","Magnolia_lotungensis","Magnolia_mexicana","Magnolia_oaxacensis","Magnolia_odora")
-target_sp <- c("Magnolia_macrophylla")
-## select species to work with now
+## list of target species
+target_sp <- c("Magnolia acuminata","Magnolia ashei","Magnolia fraseri",
+	       "Magnolia grandiflora","Magnolia macrophylla","Magnolia pyramidata",
+	       "Magnolia tripetala","Magnolia virginiana")
+## select the species to work with now
+	# note you can also create a loop here to run through all species, 
+	#	if that works with your data and the maps you'd like to make
 sp <- 1
 
 ### READ IN AND PREP POINT DATA
@@ -551,5 +556,5 @@ for(sp in 1:length(target_sp)){
 
 ## write summary table
 summary_tbl
-write.csv(summary_tbl, file.path(output_dir,"M_macrophylla_3_ExSituCoverage_Test_Table.csv"),
+write.csv(summary_tbl, file.path(output_dir,"ExSituCoverage_Table.csv"),
 	row.names = F)
